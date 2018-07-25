@@ -1,0 +1,10 @@
+{
+  "tasks": [
+    {
+      "consumer": "ECConsumer",
+      "topic": "bulletins",
+      "regex": ".*",
+      "processor": "BasicProcessor"
+    }
+  ]
+}
