@@ -2,8 +2,7 @@
   "tasks": [
     {
       "consumer": "ECConsumer",
-      "topic": "bulletins",
-      "regex": ".*",
+      "topic": "bulletins.alphanumeric",
       "processor": "BasicProcessor"
     }
   ]
