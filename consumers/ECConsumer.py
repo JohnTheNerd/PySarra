@@ -24,7 +24,7 @@ class ECConsumer(object):
     self._channel = None
     self._closing = False
     self._consumer_tag = None
-    self.url = 'amqp://anonymous:anonymous@dd.weather.gc.ca/%2F'
+    self.url = 'amqps://anonymous:anonymous@dd.weather.gc.ca/%2F'
     self.routing_key = 'v02.post.'
     self.topic = None
     self.regex = None
