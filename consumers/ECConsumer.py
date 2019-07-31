@@ -24,7 +24,7 @@ class ECConsumer(object):
     self._channel = None
     self._closing = False
     self._consumer_tag = None
-    self.url = 'amqp://anonymous:anonymous@dd.weather.gc.ca/%2F'
+    self.url = 'amqps://anonymous:anonymous@dd.weather.gc.ca/%2F'
     self.routing_key = 'v02.post.'
     self.topic = None
     self.regex = None
@@ -148,20 +148,7 @@ class ECConsumer(object):
              channel, reply_code, reply_text)
     self._connection.close()
 
-  def setup_exchange(self, exchange_name):
-    """Setup the exchange on RabbitMQ by invoking the Exchange.Declare RPC
-    command. When it is complete, the on_exchange_declareok method will
-    be invoked by pika.
-
-    :param str|unicode exchange_name: The name of the exchange to declare
-
-    """
-    logging.info('Declaring exchange %s', exchange_name)
-    self._channel.exchange_declare(self.on_exchange_declareok,
-                     exchange_name,
-                     self.EXCHANGE_TYPE)
-
-  def on_exchange_declareok(self, unused_frame):
+  def setup_exchange(self, unused_frame):
     """Invoked by pika when RabbitMQ has finished the Exchange.Declare RPC
     command.
 
