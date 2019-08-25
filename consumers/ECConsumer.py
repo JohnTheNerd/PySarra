@@ -27,12 +27,15 @@ class ECConsumer(object):
     self.url = 'amqp://anonymous:anonymous@dd.weather.gc.ca/%2F'
     self.routing_key = 'v02.post.'
     self.topic = None
+    self.regex = None
     if 'topic' in task:
       if task['topic']:
         self.routing_key = self.routing_key + str(task['topic']) + '.'
         self.topic = task['topic']
     self.routing_key = self.routing_key + '#'
-    self.regex = re.compile(task['regex'])
+    if 'regex' in task:
+      if task['regex']:
+        self.regex = re.compile(task['regex'])
     self.processor = importlib.import_module(task['processor'])
 
   def connect(self):
@@ -256,13 +259,17 @@ class ECConsumer(object):
 
     """
     logging.debug('Received message: %s', body)
-    if self.regex.match(str(body)):
-      message = {
-        'consumer': 'ECConsumer',
-        'topic': self.topic,
-        'message': body.split()[1] + body.split()[2]
-      }
+    message = {
+      'consumer': 'ECConsumer',
+      'topic': self.topic,
+      'message': body.split()[1] + body.split()[2]
+    }
+    if self.regex:
+      if self.regex.match(str(body)):
+        self.processor.process(message)
+    else:
       self.processor.process(message)
+
     self.acknowledge_message(basic_deliver.delivery_tag)
 
   def acknowledge_message(self, delivery_tag):
