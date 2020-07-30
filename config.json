@@ -1,7 +1,6 @@
 {
   "tasks": [
     {
-      "consumer": "ECConsumer",
       "topic": "bulletins.alphanumeric",
       "processor": "BasicProcessor"
     }
