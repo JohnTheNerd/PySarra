@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pr
 
 class ECConsumer(object):
 
-  EXCHANGE = 'xpublic'
+  EXCHANGE = 'xs_pas037_wmosketch_public'
   EXCHANGE_TYPE = 'topic'
   QUEUE = 'q_anonymous_PySarra_'
   for i in range(0, 12):
@@ -33,7 +33,7 @@ class ECConsumer(object):
     self._channel = None
     self._closing = False
     self._consumer_tag = None
-    self.routing_key = 'v02.post.'
+    self.routing_key = 'v03.post.'
     self.topic = None
     self.regex = None
     if 'topic' in task:
@@ -51,7 +51,7 @@ class ECConsumer(object):
 
     :rtype: pika.SelectConnection
     """
-    logging.info('Connecting to Sarracenia (amqps://anonymous:anonymous@dd.weather.gc.ca/)')
+    logging.info('Connecting to Sarracenia (amqps://anonymous:anonymous@hpfx.collab.science.gc.ca/)')
     context = ssl.create_default_context()
     context.verify_mode = ssl.CERT_REQUIRED
     # Environment Canada serves TLS certificates that have a CN of "weather.gc.ca" whereas the hostname is "dd.weather.gc.ca"
@@ -60,7 +60,7 @@ class ECConsumer(object):
     context.check_hostname = False
 
     credentials = pika.PlainCredentials('anonymous', 'anonymous')
-    parameters = pika.ConnectionParameters('dd.weather.gc.ca',
+    parameters = pika.ConnectionParameters('hpfx.collab.science.gc.ca',
               5671,
               '/',
               credentials,
