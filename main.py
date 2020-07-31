@@ -7,6 +7,7 @@ import importlib
 import logging
 import random
 import string
+import urllib.parse
 
 import multiprocessing.dummy as multiprocessing
 
@@ -244,15 +245,18 @@ class ECConsumer(object):
     :param str|unicode body: The message body
     """
     logging.debug('Received message: %s', body)
-    message = {
-      'topic': self.topic,
-      'message': body.split()[1] + body.split()[2]
-    }
-    if self.regex:
-      if self.regex.match(str(body)):
+    parsedBody = json.loads(body)
+    if 'baseUrl' in parsedBody.keys() and 'relPath' in parsedBody.keys():
+      fileURL = urllib.parse.urljoin(parsedBody['baseUrl'], parsedBody['relPath'])
+      message = {
+        'topic': self.topic,
+        'message': fileURL
+      }
+      if self.regex:
+        if self.regex.match(str(body)):
+          self.processor.process(message)
+      else:
         self.processor.process(message)
-    else:
-      self.processor.process(message)
 
     self.acknowledge_message(basic_deliver.delivery_tag)
 
