@@ -24,8 +24,8 @@ To create a processor, you must define process() in your processor that accepts 
 
     - `processor` is the filename of your processor, without the `.py`.
 
-    - You can subscribe to any `topic`s by using the . delimeter - for example to be notified of any changes under [http://dd.weather.gc.ca/alerts/cap/20180725](http://dd.weather.gc.ca/alerts/cap/20180725) can be tracked by using a topic value of `alerts.cap.20180725`.
+    - You can subscribe to any `topic`s by using the . delimeter - for example to be notified of any changes under [http://dd.weather.gc.ca/alerts/cap/20180725](http://dd.weather.gc.ca/alerts/cap/20180725) can be tracked by using a topic value of `alerts.cap.20180725`. Topic subscriptions do not work for files, you should use a regex to filter at the filename-level. If you have a better solution, please feel free to let me know or create a pull request!
 
-    - `regex` is optional. If it is defined, it is tested with each incoming message and the processor is only called if it is a match. Please note that due to Python's [Global Interpreter Lock](https://docs.python.org/3/c-api/init.html#thread-state-and-the-global-interpreter-lock), it is recommended to keep regexes simple.
+    - `regex` is optional. If it is defined, it is tested with each incoming message and the processor is only called if it is a match.
 
 - Run main.py!
