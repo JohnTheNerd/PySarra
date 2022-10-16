@@ -8,7 +8,7 @@ import logging
 import random
 import string
 
-import multiprocessing.dummy as multiprocessing
+import multiprocessing
 
 import pika
 
@@ -316,6 +316,13 @@ class ECConsumer(object):
     logging.info('Closing connection')
     self._connection.close()
 
+def startConsumer(task):
+  """Create and start an instance of ECConsumer. This is done in a separate function
+  because the object is not pickleable, meaning it cannot be passed into the new process created.
+  """
+  consumer = ECConsumer(task)
+  consumer.run()
+
 if __name__ == '__main__':
 
   scriptPath = os.path.dirname(os.path.realpath(__file__))
@@ -323,13 +330,11 @@ if __name__ == '__main__':
   config = open(configPath).read()
   config = json.loads(config)
 
-  pool = multiprocessing.Pool(len(config['tasks']))
   processes = []
   for task in config['tasks']:
-    consumer = ECConsumer(task)
-    processes.append(pool.apply_async(consumer.run))
-  pool.close()
-  pool.join()
+    processes.append(multiprocessing.Process(target=startConsumer, args=[task]))
 
   for process in processes:
-    process.get()
+    process.start()
+  for process in processes:
+    process.join()

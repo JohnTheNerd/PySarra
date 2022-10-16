@@ -1,8 +1,13 @@
 {
   "tasks": [
     {
-      "topic": "bulletins.alphanumeric",
+      "topic": "observations.swob-ml",
       "processor": "BasicProcessor"
+    },
+    {
+      "topic": "bulletins.alphanumeric",
+      "processor": "BasicProcessor",
+      "regex": ".+KWAL.+"
     }
   ]
 }
