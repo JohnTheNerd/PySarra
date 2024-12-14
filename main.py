@@ -9,6 +9,7 @@ import logging
 import random
 import string
 import multiprocessing
+import urllib.parse
 import pika
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'processors'))
@@ -25,7 +26,7 @@ class ECConsumer(object):
 
     def __init__(self, task):
         self.task = task
-        self.routing_key = 'v02.post.'
+        self.routing_key = 'v03.post.'
         self.topic = None
         self.regex = None
         if 'topic' in task:
@@ -68,15 +69,17 @@ class ECConsumer(object):
 
     def on_message(self, channel, method, properties, body):
         logging.debug(f'received message: {body}')
-        topic = self.topic.lstrip('*.WXO-DD.')
-        url = body.split()[1].decode() + body.split()[2].decode()
-        filename = url.split('/')[-1]
-        if not self.regex or self.regex.search(url):
+        parsedBody = json.loads(body)
+        if 'baseUrl' in parsedBody.keys() and 'relPath' in parsedBody.keys():
+            topic = self.topic.lstrip('*.WXO-DD.')
+            url = urllib.parse.urljoin(parsedBody['baseUrl'], parsedBody['relPath'])
+            filename = url.split('/')[-1]
             message = {
                 'topic': topic,
                 'url': url,
                 'filename': filename
             }
+        if not self.regex or self.regex.search(url):
             self.processor.process(message)
         channel.basic_ack(method.delivery_tag)
 
