@@ -18,7 +18,7 @@ log_format = ('%(asctime)s - %(levelname)s - %(name)s - %(funcName)s: %(message)
 logging.basicConfig(level='INFO', format=log_format)
 
 class ECConsumer(object):
-    exchange = 'xpublic'
+    exchange = 'xs_pas037_wmosketch_public'
     exchange_type = 'topic'
     queue = 'q_anonymous_PySarra_'
     for i in range(0, 12):
@@ -44,11 +44,11 @@ class ECConsumer(object):
     def connect(self):
         credentials = pika.PlainCredentials('anonymous', 'anonymous')
         context = ssl.create_default_context()
-        parameters = pika.ConnectionParameters('dd.weather.gc.ca',
+        parameters = pika.ConnectionParameters('hpfx.collab.science.gc.ca',
                                                5671,
                                                '/',
                                                credentials,
-                                               ssl_options=pika.SSLOptions(context, server_hostname='weather.gc.ca'))
+                                               ssl_options=pika.SSLOptions(context, server_hostname='hpfx.collab.science.gc.ca'))
         return pika.BlockingConnection(parameters)
 
     def run(self):
