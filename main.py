@@ -75,7 +75,7 @@ class ECConsumer(object):
     def on_message(self, channel, method, properties, body):
         logging.debug(f'received message: {body}')
         filename = body.split()[2].decode()
-        if not self.regex or self.regex.match(filename):
+        if not self.regex or self.regex.search(filename):
             httpshost = body.split()[1].decode()
             slash = ''
             if not httpshost.endswith('/') and not filename.startswith('/'):
