@@ -74,17 +74,14 @@ class ECConsumer(object):
 
     def on_message(self, channel, method, properties, body):
         logging.debug(f'received message: {body}')
-        filename = body.split()[2].decode()
-        if not self.regex or self.regex.search(filename):
-            httpshost = body.split()[1].decode()
-            slash = ''
-            if not httpshost.endswith('/') and not filename.startswith('/'):
-                slash = '/'
+        topic = self.topic.lstrip('*.WXO-DD.')
+        url = body.split()[1].decode() + body.split()[2].decode()
+        filename = url.split('/')[-1]
+        if not self.regex or self.regex.search(url):
             message = {
-                'topic': self.topic,
-                'message': body.split()[1] + body.split()[2],
-                'filename': filename,
-                'url': httpshost + slash + filename
+                'topic': topic,
+                'url': url,
+                'filename': filename
             }
             self.processor.process(message)
         channel.basic_ack(method.delivery_tag)
