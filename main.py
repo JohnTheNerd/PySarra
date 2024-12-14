@@ -8,7 +8,7 @@ import importlib
 import logging
 import random
 import string
-import threading
+import multiprocessing
 import pika
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'processors'))
@@ -51,26 +51,20 @@ class ECConsumer(object):
         return pika.BlockingConnection(parameters)
 
     def run(self):
-        connection = None
-        for attempt in range(5):
-            try:
-                connection = self.connect()
-                channel = connection.channel()
-                channel.queue_declare(queue=self.queue)
-                channel.queue_bind(exchange=self.exchange, queue=self.queue, routing_key=self.routing_key)
-                channel.basic_consume(queue=self.queue, on_message_callback=self.on_message, auto_ack=False)
-                logging.info('starting consumer')
-                channel.start_consuming()
-            except Exception as e:
-                logging.error(f'error: {e}')
-                if connection:
-                    connection.close()
-                time.sleep(60)
-                continue
-            break
-        else:
-            logging.error('failed to connect after 5 attempts')
-            sys.exit(1)
+        try:
+            connection = self.connect()
+            channel = connection.channel()
+            channel.queue_declare(queue=self.queue)
+            channel.queue_bind(exchange=self.exchange, queue=self.queue, routing_key=self.routing_key)
+            channel.basic_consume(queue=self.queue, on_message_callback=self.on_message, auto_ack=False)
+            logging.info('starting consumer')
+            channel.start_consuming()
+        except Exception as e:
+            logging.error(f'error: {e}')
+            if connection:
+                connection.close()
+        logging.info('shutting down consumer due to error')
+        sys.exit(1)
 
     def on_message(self, channel, method, properties, body):
         logging.debug(f'received message: {body}')
@@ -90,11 +84,32 @@ if __name__ == '__main__':
     script_path = os.path.dirname(os.path.realpath(__file__))
     config_path = os.path.join(script_path, 'config.json')
     config = json.load(open(config_path))
-    threads = []
+    processes = []
+    retries = 0
+    max_retries = 5
+
     for task in config['tasks']:
         consumer = ECConsumer(task)
-        thread = threading.Thread(target=consumer.run)
-        threads.append(thread)
-        thread.start()
-    for thread in threads:
-        thread.join()
+        process = multiprocessing.Process(target=consumer.run, name=json.dumps(task))
+        processes.append(process)
+        process.start()
+
+    while True:
+        process_restarted = False
+        time.sleep(5)
+        for index, process in enumerate(processes):
+            if not process.is_alive():
+                if retries == max_retries:
+                    logging.critical(f"all restart attempts for task {process.name} failed. shutting down.")
+                    for p in processes:
+                        p.terminate()
+                    sys.exit(1)
+                logging.error(f"task {process.name} died. restarting... (attempt {retries + 1}/{max_retries})")
+                consumer = ECConsumer(task)
+                process = multiprocessing.Process(target=consumer.run, name=json.dumps(task))
+                processes[index] = process
+                process.start()
+                process_restarted = True
+        # do not increment the retry counter for every dead process
+        if process_restarted:
+            retries += 1

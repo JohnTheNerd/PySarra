@@ -3,7 +3,7 @@
     {
       "topic": "bulletins.alphanumeric",
       "processor": "BasicProcessor",
-      "regex": "\\d{8}/SR/"
+      "regex": ".+"
     }
   ]
 }
