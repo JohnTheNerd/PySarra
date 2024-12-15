@@ -51,6 +51,7 @@ class ECConsumer(object):
         return pika.BlockingConnection(parameters)
 
     def run(self):
+        connection = None
         try:
             connection = self.connect()
             channel = connection.channel()
