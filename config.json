@@ -2,7 +2,8 @@
   "tasks": [
     {
       "topic": "bulletins.alphanumeric",
-      "processor": "BasicProcessor"
+      "processor": "BasicProcessor",
+      "regex": ".+"
     }
   ]
 }

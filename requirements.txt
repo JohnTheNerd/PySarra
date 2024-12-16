@@ -1,2 +1,3 @@
 pika
 google-cloud-pubsub
+boto3
